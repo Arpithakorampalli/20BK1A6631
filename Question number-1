@@ -1,1 +1,47 @@
+import React, { useState } from "react";
+import axios from "axios";
 
+const NumberManagementService = () => {
+  const [urls, setUrls] = useState([]);
+  const [numbers, setNumbers] = useState([]);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    const newUrls = event.target.urls.value.split(",");
+    setUrls(newUrls);
+
+    getNumbers();
+  };
+
+  const getNumbers = async () => {
+    try {
+      const responses = await Promise.all(
+        urls.map((url) => axios.get(url, { timeout: 500 }))
+      );
+
+      const allNumbers = responses.map((response) => response.data);
+
+      setNumbers(allNumbers.flat());
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <div>
+      <h1>Number Management Service</h1>
+      <form onSubmit={handleSubmit}>
+        <input type="text" name="urls" placeholder="Enter URLs" />
+        <button type="submit">Get Numbers</button>
+      </form>
+      <ul>
+        {numbers.map((number) => (
+          <li key={number}>{number}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default NumberManagementService;
